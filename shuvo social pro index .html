@@ -1,0 +1,900 @@
+<meta name='viewport' content='width=device-width, initial-scale=1'/><!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Shuvo Social PRO</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#eef2f7;font-family:Arial,sans-serif;color:#172033}
+header{background:#1877f2;color:white;padding:17px;text-align:center;font-size:24px;font-weight:bold}
+.container{max-width:500px;margin:20px auto;padding:12px}
+.card{background:white;padding:18px;margin-bottom:15px;border-radius:15px;box-shadow:0 3px 14px #0001}
+h2{text-align:center;color:#1877f2}
+input,textarea{width:100%;padding:13px;margin:8px 0;border:1px solid #ddd;border-radius:9px;font-size:15px}
+textarea{min-height:85px;resize:vertical}
+button{border:0;border-radius:9px;padding:12px;background:#1877f2;color:white;font-size:14px;font-weight:bold;cursor:pointer}
+button:disabled{opacity:.6}
+.full{width:100%;margin-top:10px}
+.secondary{background:#e8f1ff;color:#1877f2}
+.danger{background:#ffe8e8;color:#c22}
+.green{background:#16a36a}
+.hidden{display:none!important}
+#message,#postMessage,#profileMessage{text-align:center;color:#d22}
+.avatar{width:55px;height:55px;border-radius:50%;background:#1877f2;color:white;display:grid;place-items:center;font-size:25px;overflow:hidden;flex-shrink:0}
+.avatar img{width:100%;height:100%;object-fit:cover}
+.postHead{display:flex;align-items:center;gap:12px}
+.postText{white-space:pre-wrap;overflow-wrap:anywhere}
+.actions{display:flex;gap:10px;margin-top:12px}
+.actions button{flex:1}
+.comment{background:#f0f2f5;padding:9px;border-radius:10px;margin-top:8px;overflow-wrap:anywhere}
+.small{font-size:12px;color:#667085}
+.profile-card{text-align:center}
+.profile-photo{width:100px;height:100px;border-radius:50%;object-fit:cover;border:3px solid #1877f2;background:#e8f1ff}
+.profile-cover{height:90px;background:linear-gradient(120deg,#1877f2,#74b5ff);border-radius:12px;margin-bottom:-48px}
+.profile-bio{color:#667085;white-space:pre-wrap;overflow-wrap:anywhere}
+.section-title{color:#1877f2}
+.user-row{display:flex;align-items:center;gap:10px;padding:12px 0;border-bottom:1px solid #eee}
+.user-info{flex:1;min-width:0;overflow-wrap:anywhere}
+.user-row button{padding:9px;font-size:12px}
+.status{font-size:12px;color:#667085;margin-top:4px}
+.chat-box{border:1px solid #ddd;border-radius:12px;overflow:hidden}
+.chat-header{background:#e8f1ff;padding:14px;font-weight:bold;color:#1877f2}
+.chat-messages{height:320px;overflow-y:auto;padding:12px;background:#f8fafc}
+.chat-message{max-width:82%;padding:10px 13px;border-radius:13px;margin:8px 0;overflow-wrap:anywhere;white-space:pre-wrap}
+.chat-message.mine{background:#1877f2;color:white;margin-left:auto;border-bottom-right-radius:3px}
+.chat-message.theirs{background:#e5e7eb;color:#172033;margin-right:auto;border-bottom-left-radius:3px}
+.chat-time{font-size:10px;opacity:.75;margin-top:5px;text-align:right}
+.chat-input-area{display:flex;gap:7px;padding:10px;background:white}
+.chat-input-area input{margin:0;min-width:0}
+.chat-input-area button{white-space:nowrap}
+.call-buttons{display:flex;gap:8px;margin-top:10px}
+.call-buttons button{flex:1}
+.call-card{border:1px solid #dbeafe;background:#f5f9ff;border-radius:12px;padding:14px;margin:10px 0}
+.call-screen{position:fixed;inset:0;background:#101827ee;z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:15px;color:white}
+.call-screen video{background:#263449;width:100%;max-width:460px;max-height:55vh;border-radius:14px;object-fit:cover}
+#remoteVideo{width:100%;height:45vh}
+#localVideo{width:110px;height:145px;position:absolute;right:22px;top:22px;border:2px solid white;z-index:2}
+.call-info{text-align:center;margin:15px}
+.call-controls{display:flex;gap:12px;justify-content:center;margin-top:18px}
+.call-controls button{min-width:110px}
+</style>
+</head>
+<body>
+<header>🌐 Shuvo Social PRO</header>
+<div class="container">
+
+<div class="card" id="authBox">
+<h2>Welcome to Shuvo Social</h2>
+<div id="registerBox">
+<h3>Create Account</h3>
+<input id="name" placeholder="Your Name">
+<input id="regEmail" type="email" placeholder="Email Address">
+<input id="regPass" type="password" placeholder="Password (কমপক্ষে ৬ অক্ষর)">
+<button class="full" id="registerBtn">Create Account</button>
+<button class="full secondary" id="goLogin">Already have an account? Login</button>
+</div>
+<div id="loginBox" class="hidden">
+<h3>Login Account</h3>
+<input id="loginEmail" type="email" placeholder="Email Address">
+<input id="loginPass" type="password" placeholder="Password">
+<button class="full" id="loginBtn">Login</button>
+<button class="full secondary" id="goRegister">Create New Account</button>
+</div>
+<p id="message"></p>
+</div>
+
+<div id="socialApp" class="hidden">
+<div class="card">
+<div class="postHead">
+<div class="avatar" id="headerAvatar">👤</div>
+<div><b id="myName"></b><div class="small" id="myEmail"></div></div>
+</div>
+<button class="full secondary" id="logoutBtn">Logout</button>
+</div>
+
+<div class="card profile-card">
+<h2>👤 My Profile</h2>
+<div class="profile-cover"></div>
+<img id="profilePhoto" class="profile-photo" src="https://placehold.co/150x150?text=User" alt="Profile Picture">
+<h3 id="profileName">User</h3>
+<p id="profileBio" class="profile-bio">Welcome to my profile!</p>
+<div class="small" id="profileEmail"></div>
+<button class="full secondary" id="editProfileBtn">✏️ Edit Profile</button>
+<div id="editProfileBox" class="hidden">
+<hr><h3>Edit Your Profile</h3>
+<input id="editName" placeholder="Your Name">
+<textarea id="editBio" placeholder="Write your Bio"></textarea>
+<label><b>Profile Picture</b></label>
+<input id="photoInput" type="file" accept="image/*">
+<p class="small">ছবির সাইজ 300KB-এর মধ্যে রাখো।</p>
+<button class="full" id="saveProfileBtn">Save Profile</button>
+<button class="full secondary" id="cancelProfileBtn">Cancel</button>
+</div>
+<p id="profileMessage"></p>
+</div>
+
+<div class="card">
+<h2>🔍 Search Users</h2>
+<input id="userSearch" placeholder="নাম অথবা সম্পূর্ণ ইমেইল লিখুন">
+<div id="searchResults"></div>
+</div>
+
+<div class="card">
+<h2>👥 Friend Requests</h2>
+<h3>📩 Received Requests</h3><div id="incomingRequests">Loading...</div>
+<hr>
+<h3>📤 Sent Requests</h3><div id="outgoingRequests">Loading...</div>
+</div>
+
+<div class="card">
+<h2>🤝 My Friends</h2><div id="friendsList">Loading...</div>
+</div>
+
+<div class="card" id="messengerCard">
+<h2>💬 Messenger</h2>
+<p class="small">Friend-এর Message বাটনে চাপ দিয়ে Chat শুরু করো।</p>
+<div id="chatEmpty">এখনো কোনো Chat খোলা হয়নি।</div>
+<div id="chatArea" class="hidden">
+<div class="chat-box">
+<div class="chat-header">
+<span id="chatFriendName">Friend</span>
+<button id="closeChatBtn" class="danger" style="float:right;padding:6px 10px">Close</button>
+</div>
+<div class="call-buttons" style="padding:10px">
+<button id="audioCallBtn" class="green">📞 Audio Call</button>
+<button id="videoCallBtn">📹 Video Call</button>
+</div>
+<div id="chatMessages" class="chat-messages">Loading messages...</div>
+<div class="chat-input-area">
+<input id="chatInput" placeholder="Message লিখুন...">
+<button id="sendMessageBtn">Send</button>
+</div>
+</div>
+</div>
+</div>
+
+<div class="card">
+<h3>📝 Create a Post</h3>
+<textarea id="postText" placeholder="What's on your mind?"></textarea>
+<button class="full" id="postBtn">Publish Post</button>
+<p id="postMessage"></p>
+</div>
+<h3 class="section-title">🏠 News Feed</h3>
+<div id="feed"><p>Loading posts...</p></div>
+</div>
+</div>
+
+<!-- INCOMING CALL POPUP -->
+<div id="incomingCallBox" class="call-screen hidden">
+<div class="card" style="width:100%;max-width:380px;color:#172033;text-align:center">
+<h2>📲 Incoming Call</h2>
+<h3 id="incomingCallerName">Someone is calling...</h3>
+<p id="incomingCallType">Audio Call</p>
+<div class="call-controls">
+<button class="green" id="acceptCallBtn">รับ করুন</button>
+<button class="danger" id="rejectCallBtn">Reject</button>
+</div>
+</div>
+</div>
+
+<!-- ACTIVE CALL SCREEN -->
+<div id="activeCallBox" class="call-screen hidden">
+<div class="call-info">
+<h3 id="activeCallTitle">Calling...</h3>
+<p id="activeCallStatus">Connecting...</p>
+</div>
+<video id="remoteVideo" autoplay playsinline></video>
+<video id="localVideo" autoplay muted playsinline></video>
+<div class="call-controls">
+<button class="danger" id="endCallBtn">📴 End Call</button>
+</div>
+</div>
+
+<script type="module">
+import {initializeApp} from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+import {
+ getAuth,createUserWithEmailAndPassword,signInWithEmailAndPassword,
+ updateProfile,onAuthStateChanged,signOut
+} from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
+import {
+ getFirestore,collection,doc,setDoc,addDoc,getDoc,getDocs,
+ deleteDoc,query,orderBy,onSnapshot,serverTimestamp,
+ where,startAt,endAt,updateDoc
+} from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
+
+const firebaseConfig={
+ apiKey:"AIzaSyA1X7jVxP3OcXHJOzp1OVE6z2DKeSg7Gd4",
+ authDomain:"shuvo-social-pro.firebaseapp.com",
+ projectId:"shuvo-social-pro",
+ storageBucket:"shuvo-social-pro.firebasestorage.app",
+ messagingSenderId:"1057718200307",
+ appId:"1:1057718200307:web:780fe59035c35a1d8d5486",
+ measurementId:"G-BH4JVSKS85"
+};
+
+const app=initializeApp(firebaseConfig);
+const auth=getAuth(app);
+const db=getFirestore(app);
+const $=id=>document.getElementById(id);
+
+let currentUser=null,stopFeed=null,stopChat=null;
+let extraListeners=[],communityListeners=[];
+let profilePhotoData="",searchTimer=null;
+let friendMaps={sent:{},received:{}};
+let activeChatId=null,activeFriend=null;
+
+/* CALL VARIABLES */
+let peer=null,localStream=null,remoteStream=null;
+let activeCallId=null,callDocStop=null;
+let candidateStops=[];
+let incomingCallData=null;
+let pendingCandidates=[];
+let remoteDescriptionReady=false;
+let callMode="audio";
+let callRole="";
+
+const rtcConfig={
+ iceServers:[
+  {urls:"stun:stun.l.google.com:19302"},
+  {urls:"stun:stun1.l.google.com:19302"}
+ ]
+};
+
+function message(id,text){$(id).textContent=text}
+function photoKey(uid){return "shuvo_profile_photo_"+uid}
+function getSavedPhoto(uid){
+ try{return localStorage.getItem(photoKey(uid))||""}catch(e){return ""}
+}
+function addText(parent,tag,text,className){
+ const el=document.createElement(tag);
+ el.textContent=text||"";
+ if(className)el.className=className;
+ parent.appendChild(el);
+ return el;
+}
+
+function clearListeners(){
+ if(stopFeed){stopFeed();stopFeed=null}
+ if(stopChat){stopChat();stopChat=null}
+ extraListeners.forEach(fn=>fn());extraListeners=[];
+ communityListeners.forEach(fn=>fn());communityListeners=[];
+ if(incomingListener){incomingListener();incomingListener=null}
+ activeChatId=null;activeFriend=null;
+ friendMaps={sent:{},received:{}};
+ $("chatArea").classList.add("hidden");
+ $("chatEmpty").classList.remove("hidden");
+}
+
+/* AUTH */
+$("goLogin").onclick=()=>{
+ $("registerBox").classList.add("hidden");
+ $("loginBox").classList.remove("hidden");
+ message("message","");
+};
+$("goRegister").onclick=()=>{
+ $("loginBox").classList.add("hidden");
+ $("registerBox").classList.remove("hidden");
+ message("message","");
+};
+
+$("registerBtn").onclick=async()=>{
+ const name=$("name").value.trim();
+ const email=$("regEmail").value.trim().toLowerCase();
+ const pass=$("regPass").value;
+ if(!name||!email||!pass)return message("message","সব তথ্য পূরণ করো");
+ if(pass.length<6)return message("message","Password কমপক্ষে ৬ অক্ষরের হতে হবে");
+ try{
+  $("registerBtn").disabled=true;
+  const result=await createUserWithEmailAndPassword(auth,email,pass);
+  await updateProfile(result.user,{displayName:name});
+  await setDoc(doc(db,"users",result.user.uid),{name,email,bio:"",createdAt:serverTimestamp()});
+ }catch(e){message("message",e.message)}
+ finally{$("registerBtn").disabled=false}
+};
+
+$("loginBtn").onclick=async()=>{
+ try{
+  $("loginBtn").disabled=true;
+  await signInWithEmailAndPassword(auth,$("loginEmail").value.trim(),$("loginPass").value);
+ }catch(e){message("message",e.message)}
+ finally{$("loginBtn").disabled=false}
+};
+
+let incomingListener=null;
+onAuthStateChanged(auth,async user=>{
+ clearListeners();
+ currentUser=user;
+ if(!user){
+  await endActiveCall(false);
+  $("authBox").classList.remove("hidden");
+  $("socialApp").classList.add("hidden");
+  $("feed").innerHTML="";
+  return;
+ }
+ $("authBox").classList.add("hidden");
+ $("socialApp").classList.remove("hidden");
+ $("myEmail").textContent=user.email||"";
+ $("profileEmail").textContent=user.email||"";
+ try{
+  await setDoc(doc(db,"users",user.uid),{
+   name:user.displayName||"User",
+   email:(user.email||"").toLowerCase()
+  },{merge:true});
+  if(currentUser?.uid!==user.uid)return;
+  await loadMyProfile(user);
+  if(currentUser?.uid!==user.uid)return;
+  loadFeed();
+  loadCommunity();
+  listenIncomingCalls();
+ }catch(e){message("profileMessage","Firebase Error: "+e.message)}
+});
+
+/* PROFILE */
+async function loadMyProfile(user){
+ const snap=await getDoc(doc(db,"users",user.uid));
+ const data=snap.exists()?snap.data():{};
+ const name=data.name||user.displayName||"User";
+ $("profileName").textContent=name;
+ $("profileBio").textContent=data.bio||"Welcome to my profile!";
+ $("myName").textContent=name;
+ $("editName").value=name;
+ $("editBio").value=data.bio||"";
+ const photo=getSavedPhoto(user.uid);
+ if(photo){
+  $("profilePhoto").src=photo;
+  $("headerAvatar").innerHTML="";
+  const img=document.createElement("img");img.src=photo;
+  $("headerAvatar").appendChild(img);
+ }else{
+  $("profilePhoto").src="https://placehold.co/150x150?text=User";
+  $("headerAvatar").textContent="👤";
+ }
+}
+$("editProfileBtn").onclick=async()=>{
+ if(!currentUser)return;
+ $("editProfileBox").classList.remove("hidden");
+ const snap=await getDoc(doc(db,"users",currentUser.uid));
+ $("editName").value=currentUser.displayName||"User";
+ $("editBio").value=snap.exists()?snap.data().bio||"":"";
+};
+$("cancelProfileBtn").onclick=()=>{
+ $("editProfileBox").classList.add("hidden");
+ profilePhotoData="";$("photoInput").value="";
+ $("profilePhoto").src=getSavedPhoto(currentUser.uid)||"https://placehold.co/150x150?text=User";
+};
+$("photoInput").onchange=event=>{
+ const file=event.target.files[0];if(!file)return;
+ if(!file.type.startsWith("image/")){alert("শুধু ছবি নির্বাচন করো");event.target.value="";return}
+ if(file.size>300*1024){alert("ছবির সাইজ 300KB-এর কম রাখো");event.target.value="";return}
+ const reader=new FileReader();
+ reader.onload=()=>{profilePhotoData=reader.result;$("profilePhoto").src=profilePhotoData};
+ reader.onerror=()=>alert("ছবি পড়তে সমস্যা হয়েছে");
+ reader.readAsDataURL(file);
+};
+$("saveProfileBtn").onclick=async()=>{
+ if(!currentUser)return;
+ const name=$("editName").value.trim(),bio=$("editBio").value.trim();
+ if(!name)return message("profileMessage","নাম লিখতে হবে");
+ try{
+  $("saveProfileBtn").disabled=true;
+  await updateProfile(currentUser,{displayName:name});
+  await setDoc(doc(db,"users",currentUser.uid),{
+   name,email:(currentUser.email||"").toLowerCase(),bio,updatedAt:serverTimestamp()
+  },{merge:true});
+  if(profilePhotoData)localStorage.setItem(photoKey(currentUser.uid),profilePhotoData);
+  $("myName").textContent=name;$("profileName").textContent=name;
+  $("profileBio").textContent=bio||"Welcome to my profile!";
+  const photo=getSavedPhoto(currentUser.uid);
+  if(photo){
+   $("profilePhoto").src=photo;$("headerAvatar").innerHTML="";
+   const img=document.createElement("img");img.src=photo;$("headerAvatar").appendChild(img);
+  }
+  message("profileMessage","Profile Updated Successfully! 🎉");
+  $("editProfileBox").classList.add("hidden");
+  $("photoInput").value="";profilePhotoData="";
+ }catch(e){message("profileMessage",e.message)}
+ finally{$("saveProfileBtn").disabled=false}
+};
+
+/* SEARCH USERS */
+$("userSearch").addEventListener("input",()=>{
+ clearTimeout(searchTimer);
+ const term=$("userSearch").value.trim();
+ if(!term){$("searchResults").innerHTML="";return}
+ $("searchResults").textContent="Searching...";
+ searchTimer=setTimeout(()=>searchUsers(term),500);
+});
+async function searchUsers(term){
+ if(!currentUser)return;
+ try{
+  let q;
+  if(term.includes("@"))q=query(collection(db,"users"),where("email","==",term.toLowerCase()));
+  else q=query(collection(db,"users"),orderBy("name"),startAt(term),endAt(term+"\uf8ff"));
+  const snap=await getDocs(q);
+  $("searchResults").innerHTML="";
+  const users=snap.docs.filter(d=>d.id!==currentUser.uid);
+  if(!users.length){$("searchResults").textContent="কোনো ইউজার পাওয়া যায়নি।";return}
+  users.forEach(d=>renderSearchUser(d.id,d.data()));
+ }catch(e){$("searchResults").textContent="Search Error: "+e.message}
+}
+async function getRequestState(uid){
+ const sentQ=query(collection(db,"friendRequests"),where("from","==",currentUser.uid),where("to","==",uid));
+ const receivedQ=query(collection(db,"friendRequests"),where("from","==",uid),where("to","==",currentUser.uid));
+ const [sent,received]=await Promise.all([getDocs(sentQ),getDocs(receivedQ)]);
+ const all=[...sent.docs,...received.docs];
+ if(all.some(d=>d.data().status==="accepted"))return "friends";
+ if(all.some(d=>d.data().status==="pending"&&d.data().from===currentUser.uid))return "sent";
+ if(all.some(d=>d.data().status==="pending"&&d.data().to===currentUser.uid))return "received";
+ return "none";
+}
+function renderSearchUser(uid,data){
+ const row=document.createElement("div");row.className="user-row";
+ const avatar=document.createElement("div");avatar.className="avatar";avatar.textContent="👤";
+ const info=document.createElement("div");info.className="user-info";
+ addText(info,"b",data.name||"User");addText(info,"div",data.email||"","small");
+ const btn=document.createElement("button");btn.textContent="Loading...";btn.disabled=true;
+ row.append(avatar,info,btn);$("searchResults").appendChild(row);
+ getRequestState(uid).then(state=>{
+  if(state==="friends"){btn.textContent="Friends";btn.disabled=true}
+  else if(state==="sent"){btn.textContent="Request Sent";btn.disabled=true}
+  else if(state==="received"){btn.textContent="Request Received";btn.disabled=true}
+  else{btn.textContent="Add Friend";btn.disabled=false;btn.onclick=()=>sendFriendRequest(uid,data.name||"User",btn)}
+ }).catch(()=>{btn.textContent="Try Again";btn.disabled=false;btn.onclick=()=>renderSearchUser(uid,data)});
+}
+async function sendFriendRequest(uid,toName,btn){
+ if(!currentUser||uid===currentUser.uid)return;
+ try{
+  btn.disabled=true;
+  const state=await getRequestState(uid);
+  if(state!=="none"){btn.textContent=state==="friends"?"Friends":"Request Exists";return}
+  await addDoc(collection(db,"friendRequests"),{
+   from:currentUser.uid,to:uid,fromName:currentUser.displayName||"User",
+   toName,status:"pending",createdAt:serverTimestamp()
+  });
+  btn.textContent="Request Sent";alert("Friend Request পাঠানো হয়েছে! 🎉");
+ }catch(e){alert("Request Error: "+e.message);btn.disabled=false}
+}
+
+/* FRIENDS */
+function loadCommunity(){
+ const incomingQ=query(collection(db,"friendRequests"),where("to","==",currentUser.uid),where("status","==","pending"));
+ const outgoingQ=query(collection(db,"friendRequests"),where("from","==",currentUser.uid),where("status","==","pending"));
+ const friendsFromQ=query(collection(db,"friendRequests"),where("from","==",currentUser.uid),where("status","==","accepted"));
+ const friendsToQ=query(collection(db,"friendRequests"),where("to","==",currentUser.uid),where("status","==","accepted"));
+ communityListeners.push(onSnapshot(incomingQ,snap=>{
+  $("incomingRequests").innerHTML="";
+  if(snap.empty){$("incomingRequests").textContent="কোনো নতুন Request নেই।";return}
+  snap.forEach(d=>renderIncoming(d.id,d.data()));
+ },e=>$("incomingRequests").textContent="Error: "+e.message));
+ communityListeners.push(onSnapshot(outgoingQ,snap=>{
+  $("outgoingRequests").innerHTML="";
+  if(snap.empty){$("outgoingRequests").textContent="কোনো Request পাঠানো হয়নি।";return}
+  snap.forEach(d=>{
+   const row=document.createElement("div");row.className="user-row";
+   const info=document.createElement("div");info.className="user-info";
+   addText(info,"b",d.data().toName||"User");addText(info,"div","Request Pending","status");
+   row.appendChild(info);$("outgoingRequests").appendChild(row);
+  });
+ },e=>$("outgoingRequests").textContent="Error: "+e.message));
+ friendMaps={sent:{},received:{}};
+ communityListeners.push(onSnapshot(friendsFromQ,snap=>{
+  friendMaps.sent={};
+  snap.forEach(d=>friendMaps.sent[d.id]={uid:d.data().to,name:d.data().toName||"Friend",requestId:d.id});
+  drawFriends();
+ },e=>$("friendsList").textContent="Error: "+e.message));
+ communityListeners.push(onSnapshot(friendsToQ,snap=>{
+  friendMaps.received={};
+  snap.forEach(d=>friendMaps.received[d.id]={uid:d.data().from,name:d.data().fromName||"Friend",requestId:d.id});
+  drawFriends();
+ },e=>$("friendsList").textContent="Error: "+e.message));
+}
+function renderIncoming(id,data){
+ const row=document.createElement("div");row.className="user-row";
+ const info=document.createElement("div");info.className="user-info";addText(info,"b",data.fromName||"User");
+ const accept=document.createElement("button");accept.textContent="Accept";
+ const reject=document.createElement("button");reject.textContent="Reject";reject.className="danger";
+ accept.onclick=()=>respondRequest(id,"accepted",accept,reject);
+ reject.onclick=()=>respondRequest(id,"rejected",accept,reject);
+ row.append(info,accept,reject);$("incomingRequests").appendChild(row);
+}
+async function respondRequest(id,status,accept,reject){
+ try{accept.disabled=true;reject.disabled=true;await updateDoc(doc(db,"friendRequests",id),{status,respondedAt:serverTimestamp()})}
+ catch(e){alert("Request Error: "+e.message);accept.disabled=false;reject.disabled=false}
+}
+function drawFriends(){
+ $("friendsList").innerHTML="";
+ const all={...friendMaps.sent,...friendMaps.received};
+ const friends=Object.values(all);
+ if(!friends.length){$("friendsList").textContent="এখনো কোনো Friend নেই।";return}
+ friends.forEach(friend=>{
+  const row=document.createElement("div");row.className="user-row";
+  const info=document.createElement("div");info.className="user-info";addText(info,"b",friend.name);
+  const chatBtn=document.createElement("button");chatBtn.textContent="💬 Message";chatBtn.onclick=()=>openChat(friend);
+  const remove=document.createElement("button");remove.className="danger";remove.textContent="Remove";remove.onclick=()=>removeFriend(friend.requestId);
+  row.append(info,chatBtn,remove);$("friendsList").appendChild(row);
+ });
+}
+async function removeFriend(requestId){
+ if(!confirm("এই Friend-কে Remove করতে চাও?"))return;
+ try{
+  await updateDoc(doc(db,"friendRequests",requestId),{status:"removed",removedAt:serverTimestamp()});
+  if(activeFriend?.requestId===requestId)closeChat();
+ }catch(e){alert("Remove Error: "+e.message)}
+}
+
+/* MESSENGER */
+function makeChatId(uid1,uid2){return [uid1,uid2].sort().join("_")}
+async function openChat(friend){
+ if(!currentUser)return;
+ try{
+  if(stopChat){stopChat();stopChat=null}
+  activeFriend=friend;activeChatId=makeChatId(currentUser.uid,friend.uid);
+  $("chatFriendName").textContent="💬 "+friend.name;
+  $("chatMessages").innerHTML="Loading messages...";
+  $("chatEmpty").classList.add("hidden");$("chatArea").classList.remove("hidden");
+  $("messengerCard").scrollIntoView({behavior:"smooth",block:"start"});
+  const chatRef=doc(db,"chats",activeChatId);
+  await setDoc(chatRef,{
+   members:[currentUser.uid,friend.uid],
+   memberNames:{[currentUser.uid]:currentUser.displayName||"User",[friend.uid]:friend.name},
+   updatedAt:serverTimestamp()
+  },{merge:true});
+  const messagesQuery=query(collection(db,"chats",activeChatId,"messages"),orderBy("createdAt","asc"));
+  stopChat=onSnapshot(messagesQuery,snap=>{
+   if(!activeChatId)return;
+   $("chatMessages").innerHTML="";
+   if(snap.empty){$("chatMessages").textContent="এখনো কোনো Message নেই। প্রথম Message পাঠাও!";return}
+   snap.forEach(d=>{
+    const data=d.data(),mine=data.senderId===currentUser.uid;
+    const bubble=document.createElement("div");bubble.className="chat-message "+(mine?"mine":"theirs");
+    addText(bubble,"div",data.text);
+    const time=data.createdAt?.toDate?data.createdAt.toDate().toLocaleString():"Sending...";
+    addText(bubble,"div",time,"chat-time");$("chatMessages").appendChild(bubble);
+   });
+   $("chatMessages").scrollTop=$("chatMessages").scrollHeight;
+  },error=>$("chatMessages").textContent="Chat Error: "+error.message);
+ }catch(e){alert("Chat Open Error: "+e.message)}
+}
+$("sendMessageBtn").onclick=sendChatMessage;
+$("chatInput").addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();sendChatMessage()}});
+async function sendChatMessage(){
+ if(!currentUser||!activeChatId||!activeFriend)return;
+ const text=$("chatInput").value.trim();if(!text)return;
+ const chatId=activeChatId,friend=activeFriend;
+ try{
+  $("sendMessageBtn").disabled=true;
+  await addDoc(collection(db,"chats",chatId,"messages"),{
+   text,senderId:currentUser.uid,senderName:currentUser.displayName||"User",
+   receiverId:friend.uid,createdAt:serverTimestamp()
+  });
+  await updateDoc(doc(db,"chats",chatId),{lastMessage:text,updatedAt:serverTimestamp()});
+  $("chatInput").value="";
+ }catch(e){alert("Message Error: "+e.message)}
+ finally{$("sendMessageBtn").disabled=false}
+}
+function closeChat(){
+ if(stopChat){stopChat();stopChat=null}
+ activeChatId=null;activeFriend=null;
+ $("chatArea").classList.add("hidden");$("chatEmpty").classList.remove("hidden");
+ $("chatMessages").innerHTML="";
+}
+$("closeChatBtn").onclick=closeChat;
+
+/* ================= AUDIO / VIDEO CALL SYSTEM ================= */
+
+function showCallScreen(title,status){
+ $("activeCallTitle").textContent=title;
+ $("activeCallStatus").textContent=status;
+ $("activeCallBox").classList.remove("hidden");
+}
+function hideCallScreens(){
+ $("activeCallBox").classList.add("hidden");
+ $("incomingCallBox").classList.add("hidden");
+}
+function stopCandidateListeners(){
+ candidateStops.forEach(fn=>fn());
+ candidateStops=[];
+}
+function stopMedia(){
+ if(localStream){localStream.getTracks().forEach(t=>t.stop());localStream=null}
+ if(remoteStream){remoteStream.getTracks().forEach(t=>t.stop());remoteStream=null}
+ $("localVideo").srcObject=null;
+ $("remoteVideo").srcObject=null;
+}
+function resetPeer(){
+ if(peer){peer.onicecandidate=null;peer.ontrack=null;peer.onconnectionstatechange=null;peer.close();peer=null}
+ remoteDescriptionReady=false;pendingCandidates=[];
+}
+async function addRemoteCandidate(candidateData){
+ if(!peer||!remoteDescriptionReady){pendingCandidates.push(candidateData);return}
+ try{await peer.addIceCandidate(new RTCIceCandidate(candidateData))}
+ catch(e){console.log("ICE candidate error",e)}
+}
+async function flushPendingCandidates(){
+ const list=[...pendingCandidates];pendingCandidates=[];
+ for(const c of list)await addRemoteCandidate(c);
+}
+function watchCandidates(callId,subName){
+ const q=query(collection(db,"calls",callId,subName),orderBy("createdAt","asc"));
+ const stop=onSnapshot(q,snap=>{
+  snap.docChanges().forEach(change=>{
+   if(change.type==="added")addRemoteCandidate(change.doc.data().candidate);
+  });
+ },e=>console.log("Candidate listener:",e.message));
+ candidateStops.push(stop);
+}
+function createPeer(callId,remoteCandidateCollection){
+ resetPeer();
+ remoteStream=new MediaStream();
+ $("remoteVideo").srcObject=remoteStream;
+ peer=new RTCPeerConnection(rtcConfig);
+ localStream.getTracks().forEach(track=>peer.addTrack(track,localStream));
+ peer.ontrack=event=>{
+  event.streams[0]?.getTracks().forEach(track=>{
+   if(!remoteStream.getTracks().some(t=>t.id===track.id))remoteStream.addTrack(track);
+  });
+ };
+ peer.onicecandidate=async event=>{
+  if(event.candidate&&activeCallId===callId){
+   try{
+    await addDoc(collection(db,"calls",callId,callRole==="caller"?"callerCandidates":"calleeCandidates"),{
+     candidate:event.candidate.toJSON(),createdAt:serverTimestamp()
+    });
+   }catch(e){console.log("Candidate save error",e)}
+  }
+ };
+ peer.onconnectionstatechange=()=>{
+  if(!peer)return;
+  const state=peer.connectionState;
+  $("activeCallStatus").textContent=
+   state==="connected"?"Connected ✅":
+   state==="connecting"?"Connecting...":
+   state==="disconnected"?"Connection interrupted...":
+   state==="failed"?"Connection failed. Network সমস্যা হতে পারে.":
+   state==="closed"?"Call ended":state;
+ };
+ watchCandidates(callId,remoteCandidateCollection);
+}
+async function getCallMedia(mode){
+ if(!navigator.mediaDevices?.getUserMedia){
+  throw new Error("এই HTML Preview-তে Camera/Microphone চালু হচ্ছে না। HTTPS বা supported browser ব্যবহার করো।");
+ }
+ return await navigator.mediaDevices.getUserMedia({
+  audio:true,
+  video:mode==="video"?{facingMode:"user"}:false
+ });
+}
+async function startCall(mode){
+ if(!currentUser||!activeFriend)return alert("আগে Friend-এর Chat খোলো।");
+ if(activeCallId)return alert("একটি Call ইতিমধ্যে চলছে।");
+ callMode=mode;callRole="caller";
+ try{
+  showCallScreen(mode==="video"?"📹 Video Calling: "+activeFriend.name:"📞 Audio Calling: "+activeFriend.name,"Requesting microphone/camera permission...");
+  localStream=await getCallMedia(mode);
+  $("localVideo").srcObject=localStream;
+  if(mode==="audio")$("localVideo").classList.add("hidden");
+  else $("localVideo").classList.remove("hidden");
+
+  const callRef=doc(collection(db,"calls"));
+  activeCallId=callRef.id;
+  createPeer(activeCallId,"calleeCandidates");
+
+  const offer=await peer.createOffer();
+  await peer.setLocalDescription(offer);
+
+  await setDoc(callRef,{
+   callerId:currentUser.uid,
+   callerName:currentUser.displayName||"User",
+   calleeId:activeFriend.uid,
+   calleeName:activeFriend.name,
+   type:mode,
+   status:"ringing",
+   offer:{type:offer.type,sdp:offer.sdp},
+   createdAt:serverTimestamp()
+  });
+
+  $("activeCallStatus").textContent="অন্যজনের উত্তর অপেক্ষা করছি...";
+  callDocStop=onSnapshot(callRef,async snap=>{
+   if(!snap.exists())return;
+   const data=snap.data();
+   if(data.status==="answered"&&data.answer&&peer&&!peer.currentRemoteDescription){
+    try{
+     await peer.setRemoteDescription(new RTCSessionDescription(data.answer));
+     remoteDescriptionReady=true;await flushPendingCandidates();
+     $("activeCallStatus").textContent="Connecting...";
+    }catch(e){console.log(e)}
+   }
+   if(["rejected","ended","missed"].includes(data.status)){
+    await endActiveCall(false);
+    if(data.status==="rejected")alert("অন্যজন কলটি Reject করেছেন।");
+   }
+  });
+ }catch(e){
+  alert("Call শুরু করা যায়নি: "+e.message);
+  await endActiveCall(false);
+ }
+}
+
+async function listenIncomingCalls(){
+ if(incomingListener)incomingListener();
+ const q=query(collection(db,"calls"),
+  where("calleeId","==",currentUser.uid),where("status","==","ringing"));
+ incomingListener=onSnapshot(q,snap=>{
+  if(activeCallId)return;
+  const incoming=snap.docs.find(d=>d.data().callerId!==currentUser.uid);
+  if(!incoming)return;
+  incomingCallData={id:incoming.id,...incoming.data()};
+  $("incomingCallerName").textContent=incomingCallData.callerName||"Unknown User";
+  $("incomingCallType").textContent=incomingCallData.type==="video"?"📹 Video Call":"📞 Audio Call";
+  $("incomingCallBox").classList.remove("hidden");
+ },e=>console.log("Incoming call listener:",e.message));
+}
+
+$("acceptCallBtn").onclick=acceptIncomingCall;
+async function acceptIncomingCall(){
+ if(!incomingCallData||activeCallId)return;
+ const call=incomingCallData;
+ callRole="callee";callMode=call.type||"audio";activeCallId=call.id;
+ $("acceptCallBtn").disabled=true;
+ try{
+  $("incomingCallBox").classList.add("hidden");
+  showCallScreen(callMode==="video"?"📹 Video Call":"📞 Audio Call","Connecting...");
+  localStream=await getCallMedia(callMode);
+  $("localVideo").srcObject=localStream;
+  if(callMode==="audio")$("localVideo").classList.add("hidden");
+  else $("localVideo").classList.remove("hidden");
+
+  createPeer(call.id,"callerCandidates");
+  const callRef=doc(db,"calls",call.id);
+  const snap=await getDoc(callRef);
+  if(!snap.exists())throw new Error("কলটি আর পাওয়া যাচ্ছে না।");
+  const data=snap.data();
+  await peer.setRemoteDescription(new RTCSessionDescription(data.offer));
+  remoteDescriptionReady=true;
+  await flushPendingCandidates();
+
+  const answer=await peer.createAnswer();
+  await peer.setLocalDescription(answer);
+  await updateDoc(callRef,{
+   answer:{type:answer.type,sdp:answer.sdp},
+   status:"answered",
+   answeredAt:serverTimestamp()
+  });
+
+  callDocStop=onSnapshot(callRef,s=>{
+   if(s.exists()&&["ended","rejected","missed"].includes(s.data().status))endActiveCall(false);
+  });
+  $("activeCallStatus").textContent="Connecting...";
+  incomingCallData=null;
+ }catch(e){
+  alert("কল রিসিভ করা যায়নি: "+e.message);
+  await endActiveCall(true);
+ }finally{$("acceptCallBtn").disabled=false}
+}
+
+$("rejectCallBtn").onclick=async()=>{
+ if(!incomingCallData)return;
+ try{
+  await updateDoc(doc(db,"calls",incomingCallData.id),{
+   status:"rejected",endedAt:serverTimestamp()
+  });
+ }catch(e){console.log(e)}
+ incomingCallData=null;$("incomingCallBox").classList.add("hidden");
+};
+
+async function endActiveCall(updateServer=true){
+ const id=activeCallId;
+ activeCallId=null;
+ if(callDocStop){callDocStop();callDocStop=null}
+ stopCandidateListeners();
+ resetPeer();stopMedia();hideCallScreens();
+ incomingCallData=null;
+ if(updateServer&&id){
+  try{await updateDoc(doc(db,"calls",id),{status:"ended",endedAt:serverTimestamp()})}
+  catch(e){console.log("End call update:",e.message)}
+ }
+}
+$("endCallBtn").onclick=()=>endActiveCall(true);
+$("audioCallBtn").onclick=()=>startCall("audio");
+$("videoCallBtn").onclick=()=>startCall("video");
+
+/* CREATE POST */
+$("postBtn").onclick=async()=>{
+ if(!currentUser)return;
+ const text=$("postText").value.trim();
+ if(!text)return message("postMessage","কিছু লিখে পোস্ট করো");
+ try{
+  $("postBtn").disabled=true;
+  await addDoc(collection(db,"posts"),{
+   text,authorId:currentUser.uid,authorName:currentUser.displayName||"User",
+   createdAt:serverTimestamp()
+  });
+  $("postText").value="";message("postMessage","পোস্ট সফল হয়েছে! 🎉");
+ }catch(e){message("postMessage",e.message)}
+ finally{$("postBtn").disabled=false}
+};
+
+/* NEWS FEED */
+function loadFeed(){
+ const q=query(collection(db,"posts"),orderBy("createdAt","desc"));
+ stopFeed=onSnapshot(q,snapshot=>{
+  extraListeners.forEach(fn=>fn());extraListeners=[];
+  $("feed").innerHTML="";
+  if(snapshot.empty){
+   $("feed").innerHTML="<div class='card'>এখনো কোনো পোস্ট নেই। প্রথম পোস্টটি তুমি করো!</div>";
+   return;
+  }
+  snapshot.forEach(postDoc=>renderPost(postDoc));
+ },error=>$("feed").textContent="Feed Error: "+error.message);
+}
+function renderPost(postDoc){
+ const data=postDoc.data(),postId=postDoc.id;
+ const card=document.createElement("div");card.className="card";
+ const head=document.createElement("div");head.className="postHead";
+ const avatar=document.createElement("div");avatar.className="avatar";avatar.textContent="👤";
+ head.appendChild(avatar);
+ const info=document.createElement("div");
+ addText(info,"b",data.authorName||"User");
+ const date=data.createdAt?.toDate?data.createdAt.toDate().toLocaleString():"Just now";
+ addText(info,"div",date,"small");head.appendChild(info);card.appendChild(head);
+ addText(card,"p",data.text,"postText");
+ const actions=document.createElement("div");actions.className="actions";
+ const likeBtn=document.createElement("button");likeBtn.className="secondary";likeBtn.textContent="👍 Like";
+ const commentBtn=document.createElement("button");commentBtn.className="secondary";commentBtn.textContent="💬 Comment";
+ actions.append(likeBtn,commentBtn);card.appendChild(actions);
+ const likeRef=doc(db,"posts",postId,"likes",currentUser.uid);
+ const likesRef=collection(db,"posts",postId,"likes");let liked=false;
+ const stopLikes=onSnapshot(likesRef,snap=>{
+  liked=snap.docs.some(d=>d.id===currentUser.uid);
+  likeBtn.textContent=(liked?"❤️ Liked":"👍 Like")+" ("+snap.size+")";
+ });
+ extraListeners.push(stopLikes);
+ likeBtn.onclick=async()=>{
+  likeBtn.disabled=true;
+  try{
+   if(liked)await deleteDoc(likeRef);
+   else await setDoc(likeRef,{userId:currentUser.uid,createdAt:serverTimestamp()});
+  }catch(e){alert("Like Error: "+e.message)}
+  finally{likeBtn.disabled=false}
+ };
+ const commentArea=document.createElement("div");commentArea.className="hidden";card.appendChild(commentArea);
+ const commentInput=document.createElement("input");commentInput.placeholder="Write a comment...";commentArea.appendChild(commentInput);
+ const send=document.createElement("button");send.textContent="Send Comment";send.className="full";commentArea.appendChild(send);
+ const commentsList=document.createElement("div");commentArea.appendChild(commentsList);
+ commentBtn.onclick=()=>commentArea.classList.toggle("hidden");
+ send.onclick=async()=>{
+  const text=commentInput.value.trim();if(!text)return;
+  try{
+   send.disabled=true;
+   await addDoc(collection(db,"posts",postId,"comments"),{
+    text,authorId:currentUser.uid,authorName:currentUser.displayName||"User",
+    createdAt:serverTimestamp()
+   });
+   commentInput.value="";
+  }catch(e){alert("Comment Error: "+e.message)}
+  finally{send.disabled=false}
+ };
+ const commentQuery=query(collection(db,"posts",postId,"comments"),orderBy("createdAt","asc"));
+ const stopComments=onSnapshot(commentQuery,snap=>{
+  commentsList.innerHTML="";
+  snap.forEach(d=>{
+   const c=d.data(),box=document.createElement("div");box.className="comment";
+   addText(box,"b",c.authorName||"User");addText(box,"div",c.text);
+   commentsList.appendChild(box);
+  });
+ });
+ extraListeners.push(stopComments);
+ $("feed").appendChild(card);
+}
+
+/* LOGOUT */
+$("logoutBtn").onclick=async()=>{
+ try{
+  await endActiveCall(true);
+  await signOut(auth);
+ }catch(e){alert("Logout Error: "+e.message)}
+};
+</script>
+</body>
+</html>
