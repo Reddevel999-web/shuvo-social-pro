@@ -1,6 +1,16 @@
 <meta name='viewport' content='width=device-width, initial-scale=1'/><!DOCTYPE html>
 <html lang="bn">
 <head>
+ <link rel="manifest" href="/shuvo-social-pro/manifest.json">
+<meta name="theme-color" content="#1877f2">
+
+<script>
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", function () {
+    navigator.serviceWorker.register("/shuvo-social-pro/sw.js");
+  });
+}
+</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Shuvo Social PRO</title>
