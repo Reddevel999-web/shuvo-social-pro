@@ -1,0 +1,21 @@
+
+{
+  "id": "/",
+  "name": "Shuvo Social PRO",
+  "short_name": "Shuvo Social",
+  "description": "Connect with friends using Shuvo Social PRO",
+  "start_url": "/shuvo-social-pro/",
+  "scope": "/shuvo-social-pro/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#eef2f7",
+  "theme_color": "#1877f2",
+  "icons": [
+    {
+      "src": "https://dummyimage.com/512x512/1877f2/ffffff.png&text=SS",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}
