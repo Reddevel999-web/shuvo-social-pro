@@ -51,7 +51,7 @@ window.doAuth=async()=>{try{let email=$('email').value.trim(),pass=$('pass').val
 window.logout=()=>signOut(auth);
 onAuthStateChanged(auth,async user=>{unsubs.forEach(f=>f());unsubs=[];if(!user){me=null;$('authView').classList.remove('hidden');$('appView').classList.add('hidden');return}me=user;$('authView').classList.add('hidden');$('appView').classList.remove('hidden');let r=await getDoc(doc(db,'users',me.uid));if(!r.exists())await setDoc(doc(db,'users',me.uid),{uid:me.uid,name:me.displayName||me.email.split('@')[0],email:me.email,bio:'',birthday:'',birthdayPrivacy:'friends',photoURL:'',coverURL:'',friends:[]});await loadMine();startListeners();go('home')});
 async function loadMine(){let s=await getDoc(doc(db,'users',me.uid));myData=s.data()||{}}
-function startListeners(){unsubs.push(onSnapshot(query(collection(db,'posts'),orderBy('createdAt','desc'),limit(80)),s=>{feed=s.docs.map(d=>({id:d.id,...d.data()}));if(page==='home'||page==='profile')render()}));unsubs.push(onSnapshot(collection(db,'users'),s=>{users=s.docs.map(d=>({uid:d.id,...d.data()}));if(page==='friends'||page==='home')render()}));unsubs.push(onSnapshot(query(collection(db,'friendRequests'),where('to','==',me.uid)),s=>{requests=s.docs.map(d=>({id:d.id,...d.data()}));if(page==='friends'||page==='notifications')render()}));}
+function startListeners(){unsubs.push(onSnapshot(query(collection(db,'calls'),where('to','==',me.uid),where('status','==','ringing')),s=>{s.docChanges().forEach(ch=>{if(ch.type==='added'){let c=ch.doc.data();if(confirm((c.fromName||'একজন বন্ধু')+' আপনাকে '+(c.type==='video'?'ভিডিও':'অডিও')+' কল করছেন। রিসিভ করবেন?'))acceptCall(ch.doc.id);else updateDoc(doc(db,'calls',ch.doc.id),{status:'rejected'}).catch(()=>{});}})}));unsubs.push(onSnapshot(query(collection(db,'posts'),orderBy('createdAt','desc'),limit(80)),s=>{feed=s.docs.map(d=>({id:d.id,...d.data()}));if(page==='home'||page==='profile')render()}));unsubs.push(onSnapshot(collection(db,'users'),s=>{users=s.docs.map(d=>({uid:d.id,...d.data()}));if(page==='friends'||page==='home')render()}));unsubs.push(onSnapshot(query(collection(db,'friendRequests'),where('to','==',me.uid)),s=>{requests=s.docs.map(d=>({id:d.id,...d.data()}));if(page==='friends'||page==='notifications')render()}));}
 window.go=p=>{page=p;document.querySelectorAll('.navbtn[data-page]').forEach(b=>b.classList.toggle('active',b.dataset.page===p));render()};
 function userBy(id){return users.find(u=>u.uid===id)||{uid:id,name:'ব্যবহারকারী'}}
 function isFriend(id){return (myData.friends||[]).includes(id)}
@@ -67,7 +67,7 @@ window.filterPeople=v=>{$('peopleResults').innerHTML=users.filter(x=>x.uid!==me.
 function renderNotifications(){$('main').innerHTML=`<div class="card"><h3>নোটিফিকেশন</h3>${requests.map(r=>`<div class="item">👥 ${esc(userBy(r.from).name)} আপনাকে বন্ধু অনুরোধ পাঠিয়েছেন। <button onclick="go('friends')">দেখুন</button></div>`).join('')||'<div class="empty">এখন কোনো নোটিফিকেশন নেই</div>'}</div><div class="card"><h3>জন্মদিন</h3>${users.filter(x=>x.uid!==me.uid&&canSeeBirthday(x)&&x.birthday&&new Date(x.birthday).getMonth()===new Date().getMonth()&&new Date(x.birthday).getDate()===new Date().getDate()).map(x=>`🎂 আজ ${esc(x.name)}-এর জন্মদিন!`).join('<br>')||'<p class="muted">আজ পরিচিত কারও জন্মদিন নেই।</p>'}</div>`}
 function renderMessages(){$('main').innerHTML=`<div class="card"><h3>মেসেঞ্জার</h3><input id="chatSearch" placeholder="বন্ধুর নাম খুঁজুন" oninput="chatPeople(this.value)"><div id="chatPeople">${users.filter(x=>x.uid!==me.uid).slice(0,30).map(x=>`<div class="row between item" style="margin-top:7px">${avatar(x)}<b>${esc(x.name)}</b><button onclick="openChat('${x.uid}')">চ্যাট খুলুন</button></div>`).join('')}</div></div><div id="chatBox"></div>`}
 window.chatPeople=v=>{$('chatPeople').innerHTML=users.filter(x=>x.uid!==me.uid&&(x.name||'').toLowerCase().includes(v.toLowerCase())).map(x=>`<div class="row between item">${avatar(x)}<b>${esc(x.name)}</b><button onclick="openChat('${x.uid}')">চ্যাট</button></div>`).join('')};
-window.openChat=async uid=>{activeChat=uid;page='messages';render();let ids=[me.uid,uid].sort(),chatId=ids.join('_');if(chatUnsub)chatUnsub();$('chatBox').innerHTML=`<div class="card"><h3>${esc(userBy(uid).name)}</h3><div id="chatMessages" style="max-height:300px;overflow:auto"></div><div class="row"><input id="messageText" placeholder="মেসেজ লিখুন"><button class="primary" onclick="sendMessage('${chatId}','${uid}')">পাঠান</button></div></div>`;chatUnsub=onSnapshot(query(collection(db,'chats',chatId,'messages'),orderBy('createdAt','asc'),limit(100)),s=>{$('chatMessages').innerHTML=s.docs.map(d=>{let m=d.data();return `<div class="comment" style="text-align:${m.from===me.uid?'right':'left'}">${esc(m.text)}</div>`}).join('');$('chatMessages').scrollTop=99999})};
+window.openChat=async uid=>{activeChat=uid;page='messages';render();let ids=[me.uid,uid].sort(),chatId=ids.join('_');if(chatUnsub)chatUnsub();$('chatBox').innerHTML=`<div class="card"><div class="row between"><h3>${esc(userBy(uid).name)}</h3><div><button onclick="startCall('audio','${uid}')">📞 অডিও</button><button onclick="startCall('video','${uid}')">📹 ভিডিও</button></div></div><div id="callStatus" class="muted"></div><div id="remoteVideoWrap" class="hidden"><video id="remoteVideo" autoplay playsinline style="width:100%;max-height:300px;background:#111;border-radius:10px"></video><video id="localVideo" autoplay muted playsinline style="width:100px;position:relative;margin-top:-80px"></video><button class="danger" onclick="endCall()">কল কেটে দিন</button></div><div id="chatMessages" style="max-height:300px;overflow:auto"></div><div class="row"><input id="messageText" placeholder="মেসেজ লিখুন"><button class="primary" onclick="sendMessage('${chatId}','${uid}')">পাঠান</button></div></div>`;chatUnsub=onSnapshot(query(collection(db,'chats',chatId,'messages'),orderBy('createdAt','asc'),limit(100)),s=>{$('chatMessages').innerHTML=s.docs.map(d=>{let m=d.data();return `<div class="comment" style="text-align:${m.from===me.uid?'right':'left'}">${esc(m.text)}</div>`}).join('');$('chatMessages').scrollTop=99999})};
 window.sendMessage=async(id,to)=>{let t=$('messageText').value.trim();if(!t)return;await addDoc(collection(db,'chats',id,'messages'),{from:me.uid,to,text:t,createdAt:serverTimestamp()});$('messageText').value=''};
 function renderStories(){$('main').innerHTML=`<div class="card"><h3>স্টোরি তৈরি করুন</h3><input id="storyText" placeholder="স্টোরির লেখা"><input id="storyMedia" placeholder="ছবি/ভিডিও URL" style="margin-top:8px"><button class="primary" style="margin-top:8px" onclick="createKind('story')">স্টোরি প্রকাশ</button></div><div class="card"><h3>সাম্প্রতিক স্টোরি</h3>${feed.filter(p=>p.kind==='story').map(p=>`<div class="item" onclick="viewStory('${p.id}')">${esc(userBy(p.uid).name)} · ${esc(p.text||'স্টোরি')} <span class="muted">· ২৪ ঘণ্টার মধ্যে মুছে ফেলুন</span></div>`).join('')||'<p class="muted">স্টোরি নেই</p>'}</div>`}
 function renderReels(){$('main').innerHTML=`<div class="card"><h3>রিলস / ছোট ভিডিও</h3><input id="reelText" placeholder="ভিডিওর ক্যাপশন"><input id="reelMedia" placeholder="ভিডিওর সরাসরি URL (mp4)" style="margin-top:8px"><button class="primary" style="margin-top:8px" onclick="createKind('reel')">রিল প্রকাশ</button></div>${feed.filter(p=>p.kind==='reel').map(p=>`<div class="card"><b>${esc(userBy(p.uid).name)}</b><p>${esc(p.text)}</p><video controls style="width:100%;max-height:480px" src="${esc(p.media)}"></video><button onclick="react('${p.id}','Like')">👍 ${p.likes?.length||0}</button></div>`).join('')||'<div class="card empty">এখনও রিল নেই</div>'}`}
@@ -91,6 +91,54 @@ window.closeModal=()=>$('modal').classList.add('hidden');
 window.editProfile=()=>{$('modalbox').innerHTML=`<h3>প্রোফাইল সম্পাদনা</h3><input id="editName" value="${esc(myData.name||'')}" placeholder="নাম"><textarea id="editBio" placeholder="বায়ো">${esc(myData.bio||'')}</textarea><label>জন্মদিন</label><input id="editBirthday" type="date" value="${esc(myData.birthday||'')}"><label>জন্মদিন কে দেখতে পাবে?</label><select id="editPrivacy"><option value="everyone">সবাই</option><option value="friends">শুধু বন্ধুরা</option><option value="onlyme">শুধু আমি</option></select><input id="editPhoto" placeholder="প্রোফাইল ছবির URL" value="${esc(myData.photoURL||'')}"><input id="editCover" placeholder="কভার ছবির URL" value="${esc(myData.coverURL||'')}"><button class="primary" style="margin-top:10px" onclick="saveProfile()">সেভ করুন</button><button onclick="closeModal()">বন্ধ</button>`;$('editPrivacy').value=myData.birthdayPrivacy||'friends';$('modal').classList.remove('hidden')};
 window.saveProfile=async()=>{let data={name:$('editName').value.trim(),bio:$('editBio').value.trim(),birthday:$('editBirthday').value,birthdayPrivacy:$('editPrivacy').value,photoURL:$('editPhoto').value.trim(),coverURL:$('editCover').value.trim()};await updateDoc(doc(db,'users',me.uid),data);await updateProfile(me,{displayName:data.name,photoURL:data.photoURL||null});await loadMine();closeModal();render();toast('প্রোফাইল আপডেট হয়েছে')};
 window.viewStory=id=>{let p=feed.find(x=>x.id===id);if(!p)return;$('modalbox').innerHTML=`<h3>${esc(userBy(p.uid).name)}-এর স্টোরি</h3><p>${esc(p.text||'')}</p>${p.media?`<img class="postimg" src="${esc(p.media)}">`:''}<button onclick="closeModal()">বন্ধ</button>`;$('modal').classList.remove('hidden')};
+
+let pc=null,localStream=null,currentCallId=null,callRole=null,callDocUnsub=null,candidateUnsubs=[];
+const rtcConfig={iceServers:[{urls:'stun:stun.l.google.com:19302'},{urls:'stun:stun1.l.google.com:19302'}]};
+async function setupPeer(callId,role,remoteUid){
+  pc=new RTCPeerConnection(rtcConfig);
+  pc.onicecandidate=e=>{if(e.candidate){let side=role==='caller'?'callerCandidates':'calleeCandidates';addDoc(collection(db,'calls',callId,side),e.candidate.toJSON()).catch(err=>toast('নেটওয়ার্ক সিগন্যাল পাঠানো যায়নি: '+err.message))}};
+  pc.ontrack=e=>{let v=$('remoteVideo');if(v){v.srcObject=e.streams[0];$('remoteVideoWrap').classList.remove('hidden')}};
+  pc.onconnectionstatechange=()=>{if(pc&&['failed','disconnected','closed'].includes(pc.connectionState)&&pc.connectionState==='failed')toast('কল সংযোগ হয়নি। TURN server লাগতে পারে।')};
+  localStream=await navigator.mediaDevices.getUserMedia({audio:true,video:role==='caller'&&window._callType==='video'||role==='callee'&&window._incomingType==='video'});
+  localStream.getTracks().forEach(t=>pc.addTrack(t,localStream));
+  if($('localVideo'))$('localVideo').srcObject=localStream;
+  let remoteSide=role==='caller'?'calleeCandidates':'callerCandidates';
+  let unsub=onSnapshot(collection(db,'calls',callId,remoteSide),s=>s.docChanges().forEach(ch=>{if(ch.type==='added'&&pc){pc.addIceCandidate(new RTCIceCandidate(ch.doc.data())).catch(()=>{})}}));
+  candidateUnsubs.push(unsub);
+}
+window.startCall=async(type,uid)=>{
+ try{
+  if(!navigator.mediaDevices?.getUserMedia)throw Error('HTTPS ওয়েবসাইটে খুলুন এবং ক্যামেরা/মাইক্রোফোন অনুমতি দিন');
+  if(pc)await endCall();
+  window._callType=type;currentCallId=doc(collection(db,'calls')).id;callRole='caller';
+  $('callStatus').textContent='কল করা হচ্ছে...';
+  await setupPeer(currentCallId,'caller',uid);
+  let offer=await pc.createOffer();await pc.setLocalDescription(offer);
+  await setDoc(doc(db,'calls',currentCallId),{from:me.uid,fromName:myData.name||me.displayName||'বন্ধু',to:uid,type,status:'ringing',offer:{type:offer.type,sdp:offer.sdp},createdAt:serverTimestamp()});
+  callDocUnsub=onSnapshot(doc(db,'calls',currentCallId),async s=>{let d=s.data();if(!d)return;if(d.answer&&pc&&pc.signalingState==='have-local-offer')await pc.setRemoteDescription(new RTCSessionDescription(d.answer));if(['rejected','ended'].includes(d.status)){toast(d.status==='rejected'?'কল গ্রহণ করা হয়নি':'কল শেষ হয়েছে');cleanupCall(false)}});
+ }catch(e){toast('কল শুরু হয়নি: '+e.message);cleanupCall(false)}
+};
+window.acceptCall=async callId=>{
+ try{
+  let ref=doc(db,'calls',callId),s=await getDoc(ref);if(!s.exists())return;
+  let data=s.data();window._incomingType=data.type;currentCallId=callId;callRole='callee';
+  await setupPeer(callId,'callee',data.from);
+  await pc.setRemoteDescription(new RTCSessionDescription(data.offer));
+  let answer=await pc.createAnswer();await pc.setLocalDescription(answer);
+  await updateDoc(ref,{answer:{type:answer.type,sdp:answer.sdp},status:'answered'});
+  callDocUnsub=onSnapshot(ref,x=>{let d=x.data();if(d&&d.status==='ended')cleanupCall(false)});
+  if($('callStatus'))$('callStatus').textContent='কলে যুক্ত হয়েছেন';
+ }catch(e){toast('কল রিসিভ হয়নি: '+e.message);cleanupCall(false)}
+};
+function cleanupCall(updateRemote=true){
+ if(updateRemote&&currentCallId)updateDoc(doc(db,'calls',currentCallId),{status:'ended'}).catch(()=>{});
+ if(callDocUnsub){callDocUnsub();callDocUnsub=null}candidateUnsubs.forEach(f=>f());candidateUnsubs=[];
+ if(pc){pc.close();pc=null}if(localStream){localStream.getTracks().forEach(t=>t.stop());localStream=null}
+ let wrap=$('remoteVideoWrap');if(wrap)wrap.classList.add('hidden');
+ let status=$('callStatus');if(status)status.textContent='';currentCallId=null;callRole=null;
+}
+window.endCall=()=>{cleanupCall(true);toast('কল শেষ হয়েছে')};
+
 window.searchAll=v=>{searchTerm=v;go('friends');$('peopleSearch').value=v;filterPeople(v)};
 </script>
 </body></html>
