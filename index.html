@@ -39,7 +39,7 @@
 import{initializeApp}from'https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js';
 import{getAuth,createUserWithEmailAndPassword,signInWithEmailAndPassword,onAuthStateChanged,signOut,updateProfile}from'https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js';
 import{getFirestore,collection,doc,setDoc,getDoc,addDoc,updateDoc,deleteDoc,query,where,orderBy,onSnapshot,getDocs,serverTimestamp,arrayUnion,arrayRemove,limit}from'https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js';
-const firebaseConfig={apiKey:"AIzaSyA1X7jVxP3OcXHJOzp1OVE6zDKeSg7Gd4",authDomain:"shuvo-social-pro.firebaseapp.com",projectId:"shuvo-social-pro",storageBucket:"shuvo-social-pro.firebasestorage.app",messagingSenderId:"1057718200307",appId:"1:1057718200307:web:780fe59035c35a1d8d5486",measurementId:"G-BH4JVSKS85"};
+const firebaseConfig={apiKey:"AIzaSyA3XuygLSiDvjo938TO-PEGiCX3g_jfhhM",authDomain:"shuvo-social-pro.firebaseapp.com",projectId:"shuvo-social-pro",storageBucket:"shuvo-social-pro.firebasestorage.app",messagingSenderId:"1057718200307",appId:"1:1057718200307:web:780fe59035c35a1d8d5486",measurementId:"G-BH4JVSKS85"};
 const app=initializeApp(firebaseConfig),auth=getAuth(app),db=getFirestore(app);
 let me=null,myData={},authMode='login',page='home',unsubs=[],feed=[],users=[],friends=[],requests=[],activeChat=null,chatUnsub=null,searchTerm='';
 const $=id=>document.getElementById(id), esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
