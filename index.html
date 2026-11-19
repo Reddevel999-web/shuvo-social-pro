@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="bn">
 <head>
@@ -182,7 +183,7 @@ button:disabled{opacity:.6}
 <h3 id="incomingCallerName">Someone is calling...</h3>
 <p id="incomingCallType">Audio Call</p>
 <div class="call-controls">
-<button class="green" id="acceptCallBtn">รับ করুন</button>
+<button class="green" id="acceptCallBtn">গ্রহণ করুন</button>
 <button class="danger" id="rejectCallBtn">Reject</button>
 </div>
 </div>
@@ -243,13 +244,6 @@ let pendingCandidates=[];
 let remoteDescriptionReady=false;
 let callMode="audio";
 let callRole="";
-
-const rtcConfig={
- iceServers:[
-  {urls:"stun:stun.l.google.com:19302"},
-  {urls:"stun:stun1.l.google.com:19302"}
- ]
-};
 
 function message(id,text){$(id).textContent=text}
 function photoKey(uid){return "shuvo_profile_photo_"+uid}
@@ -466,6 +460,7 @@ async function sendFriendRequest(uid,toName,btn){
  }catch(e){alert("Request Error: "+e.message);btn.disabled=false}
 }
 
+/* পরের অংশে FRIENDS section থেকে শুরু হবে */
 /* FRIENDS */
 function loadCommunity(){
  const incomingQ=query(collection(db,"friendRequests"),where("to","==",currentUser.uid),where("status","==","pending"));
@@ -592,6 +587,35 @@ function closeChat(){
 $("closeChatBtn").onclick=closeChat;
 
 /* ================= AUDIO / VIDEO CALL SYSTEM ================= */
+
+/* METERED TURN SERVER */
+const rtcConfig={
+ iceServers:[
+  {urls:"stun:stun.l.google.com:19302"},
+  {urls:"stun:stun1.l.google.com:19302"},
+  {urls:"stun:stun.relay.metered.ca:80"},
+  {
+   urls:"turn:asia.relay.metered.ca:80",
+   username:"b393f8021ca6ab46acc78d06",
+   credential:"t4Voy6xZSsA5UA4L"
+  },
+  {
+   urls:"turn:asia.relay.metered.ca:80?transport=tcp",
+   username:"b393f8021ca6ab46acc78d06",
+   credential:"t4Voy6xZSsA5UA4L"
+  },
+  {
+   urls:"turn:asia.relay.metered.ca:443",
+   username:"b393f8021ca6ab46acc78d06",
+   credential:"t4Voy6xZSsA5UA4L"
+  },
+  {
+   urls:"turns:asia.relay.metered.ca:443?transport=tcp",
+   username:"b393f8021ca6ab46acc78d06",
+   credential:"t4Voy6xZSsA5UA4L"
+  }
+ ]
+};
 
 function showCallScreen(title,status){
  $("activeCallTitle").textContent=title;
@@ -809,7 +833,8 @@ $("endCallBtn").onclick=()=>endActiveCall(true);
 $("audioCallBtn").onclick=()=>startCall("audio");
 $("videoCallBtn").onclick=()=>startCall("video");
 
-/* CREATE POST */
+/* পরের অংশে CREATE POST থেকে শুরু হবে */
+  /* CREATE POST */
 $("postBtn").onclick=async()=>{
  if(!currentUser)return;
  const text=$("postText").value.trim();
